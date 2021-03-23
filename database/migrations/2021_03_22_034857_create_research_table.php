@@ -21,7 +21,7 @@ class CreateResearchTable extends Migration
             $table->string('thumnail');
             $table->string('file'); 
             $table->text('meta_keywords')->nullable(true);
-            $table->text('meta_meta_description')->nullable(true);
+            $table->text('meta_description')->nullable(true);
             $table->boolean('is_published');
             $table->datetime('published_at')->nullable(true);
             $table->integer('seen')->default(0);

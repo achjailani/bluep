@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\V1\Blog\CategoryController;
 use App\Http\Controllers\API\V1\Blog\BlogController;
+use App\Http\Controllers\API\V1\ResearchController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,5 +37,13 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API\V1'], function() {
 		Route::post('category', [CategoryController::class, 'store']);
 		Route::post('category/update/{id}', [CategoryController::class, 'update']);
 		Route::delete('category/delete/{id}', [CategoryController::class, 'delete']);
+	});
+
+	Route::group(['prefix' => 'research'], function() {
+		Route::get('view/{code}', [ResearchController::class, 'showSingle']);
+		Route::get('/', [ResearchController::class, 'index']);
+		Route::get('show/{id}', [ResearchController::class, 'showSingle']);
+		Route::post('/', [ResearchController::class, 'store']);
+		Route::delete('delete/{id}', [ResearchController::class, 'delete']);
 	});
 });

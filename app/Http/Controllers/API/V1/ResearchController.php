@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Http\Controllers\API\V1\Blog;
+namespace App\Http\Controllers\API\V1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
-use App\Repository\Blog\BlogRepository;
-use App\Models\Blog;
+use App\Repository\ResearchRepository;
+use App\Models\Research;
 
-class BlogController extends Controller
+class ResearchController extends Controller
 {
-	/**
+    /**
 	 * Define variable for respository instance
 	 * @var $repository 
 	 */
@@ -19,9 +19,9 @@ class BlogController extends Controller
 
 	/**
 	 * Instantiate a new controller instance.
-	 * @param \App\Repository\Blog\BlogRepository
+	 * @param \App\Repository\ResearchRepository
 	 */
-	public function __construct(BlogRepository $repository) 
+	public function __construct(ResearchRepository $repository) 
 	{
 		$this->repository = $repository;
 	}
@@ -55,7 +55,7 @@ class BlogController extends Controller
 			return $this->apiNotFoundResponse($response['data']);
 		}
 		return $this->apiInternalServerErrorResponse($response['message']);
-	} 
+	}
 
 	/**
 	 * Store new blog
@@ -109,7 +109,6 @@ class BlogController extends Controller
 		}
 		return $this->apiInternalServerErrorResponse($response['message']);
 	}
-
 	/**
 	 * Validate before stored or updated
 	 * @param array $data
@@ -118,12 +117,15 @@ class BlogController extends Controller
 	 */
 	private function validator(array $data, $id = null)
 	{
-		$imageRule = ($id == null) ? 'required':'nullable';
+		$imageRule 	= ($id == null) ? 'required':'nullable';
+		$fileRule	= ($id == null) ? 'required':'nullable';
+
 		return Validator::make($data, [
-			'title'		=> 'required|string|max:255',
-			'category'	=> 'required',
-			'cover'		=> $imageRule.'|mimes:jpg,png,jpeg|max:2048',
-			'keywords'	=> 'nullable|string',
+			'title'			=> 'required|string|max:255',
+			'description'	=> 'nullable|string',
+			'thumnail'		=> $imageRule.'|mimes:jpg,png,jpeg|max:2048',
+			'file'			=> $fileRule.'|mimes:doc,pdf,docx,zip|max:5000',
+			'keywords'		=> 'nullable|string',
 		]);
 	}
 }
