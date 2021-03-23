@@ -23,6 +23,15 @@ class Controller extends BaseController
     	], 422);
     }
 
+    public function apiNotFoundResponse($data = [])
+    {
+        return response([
+            'status_code'   => 404,
+            'message'       => 'Page Not Found',
+            'data'          => $data
+        ], 404);
+    }
+
     public function restApi($data, $many = false, $message = 'Ok', $code = 200) 
     {
         $attribute = $many ? array('items' => $data) : $data;

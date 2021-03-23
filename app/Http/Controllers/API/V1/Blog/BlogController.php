@@ -50,6 +50,10 @@ class BlogController extends Controller
 		if($response['status'] == true) {
 			return $this->restApi($response['data'], false, $response['message']);
 		}
+
+		if($response['code'] == 404) {
+			return $this->apiNotFoundResponse($response['data']);
+		}
 		return $this->apiInternalServerErrorResponse($response['message']);
 	} 
 

@@ -42,7 +42,9 @@ class CategoryRepository {
 			$data = is_numeric($param)
 					? $this->model->find($param) 
 					: $this->model->with('blogs')->where('slug', $param)->first();
-
+			if($data == null) {
+				return ['status' => false, 'code' => 404, 'data' => []];
+			}
 			return ['status' => true, 'message' => 'Display single data', 'data' => $data];
 		} catch (Exception $e) {
 			return ['status' => false, 'message' => $e->getMessage(), 'data' => []];

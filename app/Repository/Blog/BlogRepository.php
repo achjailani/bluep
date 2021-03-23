@@ -77,10 +77,12 @@ class BlogRepository  {
             $data = is_numeric($param)
                     ? $this->model->with('categories')->find($param) 
                     : $this->model->with('categories')->where('slug', $param)->first();
-
+            if($data == null) {
+                return ['status' => false, 'code' => 404, 'data' => []];
+            }     
             return ['status' => true, 'message' => 'Data successfully displayed', 'data' => $data];
         } catch (Exception $e) {
-            return ['status' => false, 'message' => $e->getMessage(), 'data' => []];
+            return ['status' => false, 'code' => 500, 'message' => $e->getMessage(), 'data' => []];
         }
     }
 
