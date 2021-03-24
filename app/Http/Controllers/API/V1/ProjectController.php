@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\API\V1\Blog;
+namespace App\Http\Controllers\API\V1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Repository\Blog\BlogRepository;
+use App\Repository\ProjectRepository;
 
-class BlogController extends Controller
+class ProjectController extends Controller
 {
-	/**
+    /**
 	 * Define variable for respository instance
 	 * @var $repository 
 	 */
@@ -17,9 +17,9 @@ class BlogController extends Controller
 
 	/**
 	 * Instantiate a new controller instance.
-	 * @param \App\Repository\Blog\BlogRepository
+	 * @param \App\Repository\ProjectRepository
 	 */
-	public function __construct(BlogRepository $repository) 
+	public function __construct(ProjectRepository $repository) 
 	{
 		$this->repository = $repository;
 	}
@@ -36,7 +36,7 @@ class BlogController extends Controller
 		}
 		return $this->apiInternalServerErrorResponse($response['message']);
 	}
-	
+
 	/**
 	 * Get single data
 	 * @param $var
@@ -53,7 +53,7 @@ class BlogController extends Controller
 			return $this->apiNotFoundResponse($response['data']);
 		}
 		return $this->apiInternalServerErrorResponse($response['message']);
-	} 
+	}
 
 	/**
 	 * Store new blog
@@ -80,17 +80,17 @@ class BlogController extends Controller
 	 * @param \Illuminate\Http\Request
 	 * @return \Illuminate\Http\Response
 	 */
-	public function update(Request $request, $id) 
+	public function update(Request $request, $id)
 	{
 		$validation = $this->validator($request->all(), $id);
 		if($validation->fails()) {
 			return $this->apiUnprocessableEntityResponse($validation->errors());
 		}
-
 		$response = $this->repository->call($request, $id);
 		if($response['status'] == true) {
 			return $this->restApi($response['data'], false, $response['message']);
 		}
+
 		return $this->apiInternalServerErrorResponse($response['message']);
 	}
 
@@ -118,10 +118,12 @@ class BlogController extends Controller
 	{
 		$imageRule = ($id == null) ? 'required':'nullable';
 		return Validator::make($data, [
-			'title'		=> 'required|string|max:255',
-			'category'	=> 'required',
-			'cover'		=> $imageRule.'|mimes:jpg,png,jpeg|max:2048',
-			'keywords'	=> 'nullable|string',
+			'title'			=> 'required|string|max:255',
+			'description'	=> 'required',
+			'thumnail'		=> $imageRule.'|mimes:jpg,png,jpeg|max:2048',
+			'keywords'		=> 'nullable|string',
+			'link'			=> 'required|string|max:255',
+			'is_portofolio'	=> 'required'
 		]);
-	}
+	} 
 }

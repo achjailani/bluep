@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\V1\Blog\CategoryController;
 use App\Http\Controllers\API\V1\Blog\BlogController;
 use App\Http\Controllers\API\V1\ResearchController;
+use App\Http\Controllers\API\V1\ProjectController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,5 +46,14 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API\V1'], function() {
 		Route::get('show/{id}', [ResearchController::class, 'showSingle']);
 		Route::post('/', [ResearchController::class, 'store']);
 		Route::delete('delete/{id}', [ResearchController::class, 'delete']);
+	});
+
+	Route::group(['prefix' => 'project'], function() {
+		Route::get('view/{code}', [ProjectController::class, 'showSingle']);
+		Route::get('/', [ProjectController::class, 'index']);
+		Route::get('show/{id}', [ProjectController::class, 'showSingle']);
+		Route::post('/', [ProjectController::class, 'store']);
+		Route::post('update/{id}', [ProjectController::class, 'update']);
+		Route::delete('delete/{id}', [ProjectController::class, 'delete']);
 	});
 });
