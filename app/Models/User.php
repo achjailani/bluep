@@ -6,10 +6,11 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -49,6 +50,10 @@ class User extends Authenticatable
         return $this->hasOne(UserProfile::class, 'user_id', 'id');    
     }
 
+    public function hasVerfiedEmail() 
+    {
+        return $this->email_verified_at === null ? false : true;
+    }
     /**
      * Get roles for user
      */
