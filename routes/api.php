@@ -6,6 +6,7 @@ use App\Http\Controllers\API\V1\Blog\CategoryController;
 use App\Http\Controllers\API\V1\Blog\BlogController;
 use App\Http\Controllers\API\V1\ResearchController;
 use App\Http\Controllers\API\V1\ProjectController;
+use App\Http\Controllers\API\V1\User\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,6 +24,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::group(['prefix' => 'v1', 'namespace' => 'API\V1'], function() {
+
+	Route::group(['namespace' => 'User'], function() {
+		Route::post('register', [AuthController::class, 'register']);
+	});
+
 	Route::group(['namespace' => 'Blog'], function(){
 		Route::get('blog/view/{slug}', [BlogController::class, 'showSingle']);
 		Route::get('blog/category/{slug}', [CategoryController::class, 'showSingle']);

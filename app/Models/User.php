@@ -40,32 +40,44 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+    
+    /**
+     * Get profile for user 
+     */
+    public function profile() 
+    {
+        return $this->hasOne(UserProfile::class, 'user_id', 'id');    
+    }
 
     /**
      * Get roles for user
      */
-    public function role() {
+    public function role() 
+    {
         return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id');
     }
 
     /**
      * Get blogs for user
      */
-    public function blogs() {
+    public function blogs() 
+    {
         return $this->hasMany(Blog::class, 'user_id', 'id');
     }
 
     /**
      * Get projects for user
      */
-    public function projects() {
+    public function projects() 
+    {
         return $this->hasMany(Project::class, 'user_id', 'id');
     }
 
     /**
      * Get researches for user
      */
-    public function researches() {
+    public function researches() 
+    {
         return $this->hasMany(Research::class, 'user_id', 'id');
     }
 }
