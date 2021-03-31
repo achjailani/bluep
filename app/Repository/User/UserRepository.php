@@ -3,6 +3,7 @@ namespace App\Repository\User;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 use App\Models\User;
 
 class UserRepository {
@@ -18,7 +19,16 @@ class UserRepository {
             if(Auth::attempt(['email'  => $data['email'], 'password' => $data['password']])){
                 $user = Auth::user();
                 $success['user']  = Auth::user();
-                $success['token'] = $user->createToken('AppPassport')->accessToken;
+                $accessToken      = $user->createToken($data['email']);
+                $token            = $accessToken->token;
+    
+                if($data['remember_me'] == true) {
+                    $token->expires_at = Carbon::now()->addWeeks(1);
+                }
+                $success['token']      = $accessToken->accessToken;
+                $success['token_type'] = "Bareer";
+                $success['expires_at'] = Carbon::parse($accessToken->token->expires_at)->toDateTimeString();
+
                 return ['status' => true, 'data' => $user, 'message' => $success];
             }
         } catch (\Exception $e) {

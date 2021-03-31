@@ -50,7 +50,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(UserProfile::class, 'user_id', 'id');    
     }
 
-    public function hasVerfiedEmail() 
+    public function hasVerifiedEmail() 
     {
         return $this->email_verified_at === null ? false : true;
     }
