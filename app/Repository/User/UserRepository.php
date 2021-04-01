@@ -45,8 +45,8 @@ class UserRepository {
             $model->password    = Hash::make($data['password']);
             $model->save(); 
             return ['status' => true, 'data' => $model, 'message' => ($id == true) ? 'Data successfull created' : 'Data successfully updated'];
-        } catch (\Throwable $th) {
-            return ['status' => false, 'message' => $th->getMessage()];
+        } catch (\Exception $e) {
+            return ['status' => false, 'message' => $e->getMessage()];
         }
     }
 
@@ -55,8 +55,8 @@ class UserRepository {
         try {
             $model = $this->model->find($id);
             return ['status' => true, 'data' => $model, 'message' => 'ok'];
-        } catch (\Throwable $th) {
-            return ['status' => false, 'message' => $th->getMessage()];
+        } catch (\Exception $th) {
+            return ['status' => false, 'message' => $e->getMessage()];
         }
     }
 }

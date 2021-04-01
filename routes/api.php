@@ -21,12 +21,14 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API\V1'], function() {
 		Route::get('email/verify/{id}', [VerificationController::class, 'verify'])->name('verification.verify');
 		Route::get('email/resend', [VerificationController::class, 'resend'])->name('verification.resend');
 		Route::post('email/verify', [VerificationController::class, 'verifyEmail'])->name('verification.notice');
+		Route::post('forgot-password', [AuthController::class, 'forgotPassword'])->middleware('guest')->name('password.email');
+		Route::get('reset-password/{token}', [AuthController::class, 'getTokenResetPassword'])->middleware('guest')->name('password.reset');
+		Route::post('reset-password', [AuthController::class, 'resetPassword'])->middleware('guest')->name('password.update');
 		Route::post('register', [AuthController::class, 'register']);
-		Route::post('login', [AuthController::class, 'login'])->middleware('verified');
+		Route::post('login', [AuthController::class, 'login']);
 
-		Route::group(['middleware' => ['verified', 'auth']], function(){
-			Route::post('user/add', [UserController::class, 'store']);
-			Route::post('user/update/{id}', [UserController::class, 'update']);
+		Route::group(['middleware' => ['auth:api', 'verified']], function(){
+			Route::post('user/save/{id?}', [UserController::class, 'save']);
 			Route::get('user/all', [UserController::class, 'all']);
 			Route::get('user/{id}', [UserController::class, 'get']);
 		});
