@@ -47,6 +47,15 @@ class UserController extends Controller
         return $this->apiInternalServerErrorResponse($response['message']);
     }
 
+    public function updateUserProfile(Request $request, $id = null)
+    {
+        $response = $this->repository->updateUserProfile($request->all(), $id);
+        if($response['status'] == true) {
+            return restApi($response['data'], false, $response['message']);
+        }
+        return $this->apiInternalServerErrorResponse($response['message']);
+    }
+
     /**
      * Validate user before stored
      * @param array $data
@@ -62,4 +71,18 @@ class UserController extends Controller
             'password_confirmation' => 'required|min:8'
         ]);
     }
+
+    /**
+     * Validate user before stored
+     * @param array $data
+     * @param $id 
+     */
+    public function validateUpdate($data) 
+    {
+        return Validator::make($data, [
+            'name'      => 'required|string|max:255',
+            'username'  => 'required|alpha_dash|max:255',
+            'title'     => 'required|string|max:255',
+        ]);
+    }    
 }

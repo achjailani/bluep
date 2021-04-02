@@ -6,15 +6,18 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Str;
+use App\Repository\ImageUploader;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\UserProfile;
 
 class UserRepository {
     
-    public function __construct(User $model) 
+    public function __construct(User $model, ImageUploader $uploader) 
     {
-        $this->model = $model;
+        $this->model    = $model;
+        $this->uploader = $uploader;
+        $this->imageUrl = '/user/profile/';
     }
 
     /**
@@ -64,47 +67,28 @@ class UserRepository {
         }
     }
 
-    public function addUserProfile(array $data, $id)
+    public function updateUserProfile(array $data, $id = null)
     {
         try {
-            $model = $this->model->find($id);
+            $model = ($id == null) ? Auth::user() : $this->model->find($id);
             $model->name = $data['name'];
             $model->username = $data['username'];
             $model->save();
 
-            $profile = $model->profile ? $model->profile : new UserProfile();
+            $profile    = $model->profile ? $model->profile : new UserProfile();
+            $profile_id = $model->profile ? $model->profile->id : null;
+
             $profile->title     = $data['title'];
             $profile->bio       = $data['bio'];
-            $profile->image     = $data['image'];
+            $profile->image     = $this->imageExection($data['image'], $profile_id);
             $profile->address   = $data['address'];
-            $profile->linkedin  = $data['github'];
+            $profile->linkedin  = $data['linkedin'];
+            $profile->github    = $data['github'];
             $profile->instagram = $data['instagram'];
             $profile->facebook  = $data['facebook'];
             $model->profile()->save($profile);
 
             return ['status' => true, 'data' => $model,  'message' => 'Updated successfully'];
-        } catch (\Exception $e) {
-            return ['status' => false, 'message' => $e->getMessage()];
-        }
-    }
-
-    public function updateUserProfile(array $data, $id)
-    {
-
-    }
-
-     /**
-     * Get user Profile
-     * @param string $username 
-     */
-    public function getSingleUserByUsername($username = null)
-    {
-        try {
-            $success = ($username === null) 
-                       ? User::with('profile')->where('username', Auth::user()->username)->first()
-                       : User::where('username', $username)->with('profile')->first();
-
-            return ['status' => true, 'data' => $success, 'message' => 'Ok']; 
         } catch (\Exception $e) {
             return ['status' => false, 'message' => $e->getMessage()];
         }
@@ -167,5 +151,31 @@ class UserRepository {
         } catch (\Exception $e) {
             return ['status' => false, 'message' => $e->getMessage()];
         }
+    }
+
+    public function imageExection($request, $id = null) 
+    {
+        $data = $request->all();
+
+        $add_name = Str::random(15).'_'.time();
+        $img_name = $this->imageUrl.$add_name.'.'.$data['image']->getClientOriginalExtension();
+
+        if(!is_null($id)) {
+            $model = UserProfile::find($id);
+            if($request->hasFile('image')) {
+                $this->uploader->up($data['image'], $this->imageUrl, $disk = 'public', $add_name);
+                if(file_exists(storage_path('app/public').$model->image)) {
+                    unlink(storage_path('app/public').$model->image);
+                }
+            } else {
+                $img_name = $model->image;
+            }
+        } 
+
+        if(is_null($id)) {
+            $this->uploader->up($data['image'], $this->imageUrl, $disk = 'public', $add_name);
+        }
+        
+    	return $img_name;
     }
 }
