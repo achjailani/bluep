@@ -13,7 +13,7 @@ class UserProfile extends Model
      * The table associated with the model.
      * @var string
      */
-    protected $table = 'project_images';
+    protected $table = 'user_profiles';
 
     /**
      * The primary key associated with the table.
@@ -39,6 +39,6 @@ class UserProfile extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 }

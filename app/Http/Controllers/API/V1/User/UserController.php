@@ -14,6 +14,14 @@ class UserController extends Controller
         $this->repository = $repository;
     }
 
+    public function profile($username = null) {
+        $response = $this->repository->getSingleUserByUsername($username);
+        if($response['status'] === true) {
+            return $this->restApi($response['data'], false, $response['message']);
+        }
+        return $this->apiInternalServerErrorResponse($response['message']);
+    }
+
     public function get($id)
     {
         $response = $this->repository->getSingle($id);
@@ -44,12 +52,12 @@ class UserController extends Controller
      * @param array $data
      * @param $id 
      */
-    public function validator($data, $id = null) 
+    public function validator($data) 
     {
-        $email = ($id != null) ? '' : '|unique:users';
         return Validator::make($data, [
             'name'      => 'required|string|max:255',
-            'email'     => 'required|email|max:255'.$email,
+            'email'     => 'required|email|max:255|unique:users',
+            'username'  => 'required|alpha_dash|max:255|unique:users',
             'password'  => 'required|min:8|confirmed',
             'password_confirmation' => 'required|min:8'
         ]);

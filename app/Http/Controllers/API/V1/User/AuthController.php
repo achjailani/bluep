@@ -19,6 +19,11 @@ class AuthController extends Controller
         $this->repository = $repository;
     }
 
+    /**
+     * Login process for user
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response  
+     */
     public function login(Request $request)
     {
         $validation = $this->validateLogin($request->all());
@@ -33,6 +38,11 @@ class AuthController extends Controller
         return $this->apiInternalServerErrorResponse($response['message']);
     }
 
+    /**
+     * Register process for new user
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response  
+     */
     public function register(Request $request)
     {
         $validation = $this->validator($request->all());
@@ -48,6 +58,11 @@ class AuthController extends Controller
         return $this->apiInternalServerErrorResponse($response['message']);
     }
 
+    /**
+     * Send email forgot password
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response  
+     */
     public function forgotPassword(Request $request) 
     {
         $validation = Validator::make($request->all(),[
@@ -58,28 +73,31 @@ class AuthController extends Controller
             return $this->apiUnprocessableEntityResponse($validation->errors());
         }
 
-        try {
-            $status = Password::sendResetLink($request->only('email'));
-            if($status === Password::RESET_LINK_SENT) {
-                return response([
-                    'status_code'   => 200,
-                    'message'       => 'We\'ve sent you reset password link, please check your email'
-                ], 200);
-            }
-        } catch (\Exception $e) {
-            return $this->apiInternalServerErrorResponse($e->getMessage());
+        $response = $this->repository->sendEmailforgotPassword($request->all());
+        if($response['status'] === true) {
+            return $this->restApi($response['data'], false, $response['message']);
         }
+        
+        return $this->apiInternalServerErrorResponse($response['message']);
     }
 
+    /**
+     * Get token from mail server
+     * @param string $token
+     * @return \Illuminate\Http\Response  
+     */
     public function getTokenResetPassword($token) {
         return response([
             'status_code'   => 200,
             'token'         => $token
         ], 200);
-
-        
     }
 
+    /**
+     * Reset Password
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response  
+     */
     public function resetPassword(Request $request) {
         $validation = Validator::make($request->all(),[
             'email'     => 'required|email',
@@ -91,29 +109,11 @@ class AuthController extends Controller
             return $this->apiUnprocessableEntityResponse($validation->errors());
         }
 
-        try {
-            $reset = Password::reset(
-                $request->only('email', 'password', 'password_confirmation', 'token'),
-                function($user, $password) use ($request) {
-                    $user->forceFill([
-                        'password'  => Hash::make($password)
-                    ])->setRememberToken(Str::random(60));
-
-                    $user->save();
-                    event(new PasswordReset($user));
-                }
-            );
-
-            if($reset === Password::PASSWORD_RESET) {
-                return response([
-                    'status_code'   => 200,
-                    'message'       => 'Password has been reseted successfully, please login'
-                ], 200);
-            }
-        } catch (\Exception $e) {
-            return $this->apiInternalServerErrorResponse($e->getMessage());
+        $response = $this->repository->updateToNewPassword($request->all());
+        if($response['status'] === true) {
+            return $this->restApi($response['data'], false, $response['message']);
         }
-        
+        return $this->apiInternalServerErrorResponse($response['message']);
     } 
 
     /**
@@ -122,10 +122,10 @@ class AuthController extends Controller
      */
     public function validator($data) 
     {
-        $email = ($id == null) ? null : '|unique:users';
         return Validator::make($data, [
             'name'      => 'required|string|max:255',
-            'email'     => 'required|email|max:255'.$email,
+            'email'     => 'required|email|max:255|unique:users',
+            'username'  => 'required|alpha_dash|max:255|unique:users',
             'password'  => 'required|min:8|confirmed',
             'password_confirmation' => 'required|min:8'
         ]);

@@ -27,10 +27,12 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API\V1'], function() {
 		Route::post('register', [AuthController::class, 'register']);
 		Route::post('login', [AuthController::class, 'login']);
 
+		Route::get('user/@{username}', [UserController::class, 'profile']);
 		Route::group(['middleware' => ['auth:api', 'verified']], function(){
 			Route::post('user/save/{id?}', [UserController::class, 'save']);
 			Route::get('user/all', [UserController::class, 'all']);
 			Route::get('user/{id}', [UserController::class, 'get']);
+			Route::get('profile', [UserController::class, 'profile']);
 		});
 		
 	});  
